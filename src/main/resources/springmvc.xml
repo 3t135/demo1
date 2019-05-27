@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+    http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd"
+       default-autowire="byName">
+
+
+    <!--放过静态资源文件-->
+    <mvc:resources mapping="/css/**" location="/statics/css/" />
+    <mvc:resources mapping="/js/**" location="/statics/js/" />
+    <mvc:resources mapping="/images/**" location="/statics/images/" />
+    <mvc:resources mapping="/fonts/**" location="/statics/fonts/" />
+    <mvc:resources mapping="/localcss/**" location="/statics/localcss/" />
+    <mvc:resources mapping="/localjs/**" location="/statics/localjs/" />
+    <!-- 这个标签表示使用注解来驱动 -->
+    <mvc:annotation-driven >
+        <mvc:message-converters>
+            <!--解决springmvc返回的json中文问题  -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg value="utf-8" />
+            </bean>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- 默认servlet -->
+    <mvc:default-servlet-handler />
+
+    <!-- 使用thymeleaf解析   Begin-->
+    <bean id="templateResolver"
+          class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
+        <property name="prefix" value="/WEB-INF/html/"/>
+        <property name="suffix" value=".html"/>
+        <property name="templateMode" value="HTML"/>
+        <property name="cacheable" value="false"/>
+        <!--解决中文乱码-->
+        <property name="characterEncoding" value="UTF-8" />
+    </bean>
+    <bean id="templateEngine"
+          class="org.thymeleaf.spring4.SpringTemplateEngine">
+        <property name="templateResolver" ref="templateResolver"/>
+    </bean>
+    <bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+        <property name="templateEngine" ref="templateEngine"/>
+        <!--解决中文乱码-->
+        <property name="characterEncoding" value="UTF-8" />
+    </bean>
+    <!-- 使用thymeleaf解析   end-->
+
+    <context:component-scan base-package="com.szxs"/>
+
+    <import resource="springmvc-dao.xml" />
+</beans>
